@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Love Messages with Flowers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body, html {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Container */
+  .container {
+    position: relative;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3rem 4rem;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(255, 75, 43, 0.6);
+    max-width: 400px;
+    width: 90vw;
+    user-select: none;
+    z-index: 10;
+  }
+
+  /* Main message styling */
+  .message {
+    font-size: 2.5rem;
+    font-weight: 600;
+    min-height: 4rem;
+    margin-bottom: 2rem;
+    animation-duration: 0.8s;
+    animation-fill-mode: forwards;
+  }
+
+  /* Dropping word container & style */
+  .dropping-word {
+    position: absolute;
+    top: -3.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffe6e8;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    animation-fill-mode: forwards;
+  }
+
+  /* Fade animations */
+  @keyframes fadeOut {
+    0% {opacity: 1; transform: translateY(0);}
+    100% {opacity: 0; transform: translateY(-20px);}
+  }
+  @keyframes fadeIn {
+    0% {opacity: 0; transform: translateY(20px);}
+    100% {opacity: 1; transform: translateY(0);}
+  }
+
+  .fade-out {
+    animation-name: fadeOut;
+  }
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  /* Dropping word slide down + fade in + fade out */
+  @keyframes dropSlide {
+    0% {opacity: 0; transform: translate(-50%, -40px);}
+    20% {opacity: 1; transform: translate(-50%, 0);}
+    80% {opacity: 1; transform: translate(-50%, 0);}
+    100% {opacity: 0; transform: translate(-50%, 20px);}
+  }
+
+  /* Button styling */
+  button {
+    background: #ff4b2b;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.25rem;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(255, 75, 43, 0.4);
+    transition: background 0.3s ease, transform 0.2s ease;
+    outline: none;
+  }
+  button:hover {
+    background: #ff6b4b;
+    transform: scale(1.05);
+  }
+  button:active {
+    transform: scale(0.95);
+  }
+
+  /* Flower petals container */
+  .petals {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  /* Single petal */
+  .petal {
+    position: absolute;
+    top: -50px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path fill="%23ff758f" d="M10 0c-2 4-10 10-10 15 0 4 8 5 10 5s10-1 10-5c0-5-8-11-10-15z"/></svg>') no-repeat center;
+    background-size: contain;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 1px #ff4b2b);
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  /* Petal fall animation */
+  @keyframes fall {
+    0% {
+      transform: translateY(-50px) rotate(0deg);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(110vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="petals" id="petals"></div>
+
+<div class="container">
+  <div id="droppingWord" class="dropping-word"></div>
+  <div id="message" class="message fade-in">I Love You</div>
+  <button id="nextBtn">Next</button>
+</div>
+
+<script>
+  const messages = [
+    "I Love You",
+    "I Miss You",
+    "You Are My Everything",
+    "My Heart Beats For You",
+    "Forever Yours",
+    "You Complete Me",
+    "Every Moment With You Is Precious",
+    "My Love For You Grows Daily",
+    "You Light Up My Life",
+    "Together, Always and Forever"
+  ];
+
+  const droppingWords = ["Ujala", "I'm", "Yours"];
+
+  let msgIndex = 0;
+  let wordIndex = 0;
+  const messageEl = document.getElementById('message');
+  const droppingWordEl = document.getElementById('droppingWord');
+  const nextBtn = document.getElementById('nextBtn');
+
+  nextBtn.addEventListener('click', () => {
+    // Show dropping word animation
+    droppingWordEl.textContent = droppingWords[wordIndex];
+    droppingWordEl.style.animation = 'none';  // reset animation
+    // Trigger reflow to restart animation
+    void droppingWordEl.offsetWidth;
+    droppingWordEl.style.animation = 'dropSlide 2.5s ease forwards';
+
+    wordIndex = (wordIndex + 1) % droppingWords.length;
+
+    // Fade out current message
+    messageEl.classList.remove('fade-in');
+    messageEl.classList.add('fade-out');
+
+    messageEl.addEventListener('animationend', function handler() {
+      messageEl.removeEventListener('animationend', handler);
+
+      // Update message index and text
+      msgIndex = (msgIndex + 1) % messages.length;
+      messageEl.textContent = messages[msgIndex];
+
+      // Fade in new message
+      messageEl.classList.remove('fade-out');
+      messageEl.classList.add('fade-in');
+    });
+  });
+
+  // Flower petals generation & animation
+  const petalsContainer = document.getElementById('petals');
+  const petalsCount = 30;
+
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function createPetal() {
+    const petal = document.createElement('div');
+    petal.classList.add('petal');
+    petal.style.left = `${randomRange(0, 100)}vw`;
+    petal.style.width = `${randomRange(15, 25)}px`;
+    petal.style.height = petal.style.width;
+    petal.style.animationDuration = `${randomRange(6, 12)}s`;
+    petal.style.animationDelay = `${randomRange(0, 12)}s`;
+    petalsContainer.appendChild(petal);
+
+    // Remove petals after animation to keep DOM light
+    petal.addEventListener('animationend', () => {
+      petalsContainer.removeChild(petal);
+      createPetal();
+    });
+  }
+
+  // Initialize petals
+  for (let i = 0; i < petalsCount; i++) {
+    createPetal();
+  }
+</script>
+
+</body>
+</html>
